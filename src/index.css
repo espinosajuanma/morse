@@ -149,6 +149,7 @@ a:hover {
 }
 
 .btn-primary, .btn-secondary {
+    user-select: none;
     font-family: var(--font-family);
     font-weight: bold;
     padding: 12px 24px;
@@ -192,6 +193,7 @@ a:hover {
 }
 
 .level-btn {
+    user-select: none;
     background-color: #fff9f0;
     border: 2px solid #d6c7a7;
     border-radius: 8px;
@@ -277,6 +279,7 @@ a:hover {
 }
 
 .key-btn {
+    user-select: none;
     background-color: #fff9f0;
     border: 2px solid #d6c7a7;
     border-radius: 8px;
