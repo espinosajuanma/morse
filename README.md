@@ -1,12 +1,72 @@
-# React + Vite
+# Morse Code Learner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive, level-based web application to learn and practice Morse code. Developed with React and Vite.
 
-Currently, two official plugins are available:
+Live at: [morse.com.ar](https://morse.com/ar)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **Level-Based Learning:** Step-by-step cumulative levels to learn receiving
+  Morse code. Starts with basic letters (E, T) and progressively introduces
+  more.
+- **Transmission Practice:** A dedicated sandbox area to practice tapping dots
+  and dashes, translating your input into Latin characters in real-time.
+- **Optimized Audio Synthesis:** Uses the Web Audio API with smoothed envelopes
+  and standardized WPM (Words Per Minute) timing to prevent ear fatigue and
+  provide a realistic radio feel.
+- **PWA Ready:** Installable on mobile devices (iOS/Android) and desktop
+  directly from the browser for a standalone, full-screen experience.
+- **Responsive Design:** A pale, retro-manual aesthetic that scales perfectly
+  across devices.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech Stack
+
+- **Framework:** React
+- **Build Tool:** Vite
+- **PWA:** `vite-plugin-pwa`
+- **Styling:** Vanilla CSS with custom properties
+
+## Getting Started
+
+To run this project locally, make sure you have Node.js installed.
+
+1. **Clone the repository:**
+
+```bash
+git clone https://github.com/espinosajuanma/morse
+cd morse
+```
+
+2. **Install dependencies:**
+
+```bash
+npm install
+```
+
+3. **Run the development server:**
+
+```bash
+npm run dev
+```
+
+This will start the Vite development server. Open `http://localhost:5173` in
+your browser to view the app.
+
+## Build for Production
+
+To build the app for production, run:
+
+```bash
+npm run build
+```
+
+This will generate a `dist` folder with the optimized static files, ready to be
+deployed.
+
+## Contact
+
+Developed by Juanma Espinosa
+
+- Email: hola@juanma.ar
+- LinkedIn: [/in/espinosajuanma](https://linkedin.com/in/espinosajuanma)
+
