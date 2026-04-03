@@ -1,5 +1,5 @@
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import morseAlphabet from './utils/morseAlphabet'
+import morseAlphabet from '../utils/morseAlphabet'
 
 const MorseTable = () => {
   return (
