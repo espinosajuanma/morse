@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LEVELS } from '../utils/levels';
-import { playMorseSequence, initAudio } from '../utils/audio';
+import { playMorseSequence, initAudio, supportsVibrate } from '../utils/audio';
 import morseAlphabet from '../utils/morseAlphabet';
 
 const TARGET_POINTS = 5;
@@ -20,6 +20,8 @@ export default function ReceptionGame({ onBack }) {
   const [targetLetter, setTargetLetter] = useState(null);
   const [feedback, setFeedback] = useState(null); // 'correct', 'incorrect', or null
   const [isProcessing, setIsProcessing] = useState(false);
+  const [vibrateEnabled, setVibrateEnabled] = useState(true);
+  const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
 
   useEffect(() => {
     if (!level || !Number.isInteger(parsedLevel) || parsedLevel < 1 || parsedLevel > LEVELS.length) {
@@ -65,9 +67,9 @@ export default function ReceptionGame({ onBack }) {
     setTimeout(() => {
       playMorseSequence(morseAlphabet[randomLetter], () => {
         setIsProcessing(false);
-      });
+      }, { vibrate: supportsVibrate && isMobile && vibrateEnabled });
     }, 500);
-  }, [availableLetters, currentLevelIndex, onBack, navigate]);
+  }, [availableLetters, currentLevelIndex, onBack, navigate, vibrateEnabled, isMobile]);
 
   // Start the first turn when points are initialized
   useEffect(() => {
@@ -113,7 +115,7 @@ export default function ReceptionGame({ onBack }) {
         handleInput(e.key);
       }
       if (e.key === ' ') {
-        playMorseSequence(morseAlphabet[targetLetter]);
+        playMorseSequence(morseAlphabet[targetLetter], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled });
       }
       if (e.key === 'Escape') {
         onBack();
@@ -121,7 +123,7 @@ export default function ReceptionGame({ onBack }) {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleInput]);
+  }, [handleInput, isMobile, vibrateEnabled]);
 
   return (
     <div className="game-container">
@@ -129,6 +131,7 @@ export default function ReceptionGame({ onBack }) {
         <h2>Nivel {currentLevelIndex + 1}</h2>
         <button className="btn-secondary" onClick={onBack}>Volver</button>
       </div>
+
 
       <div className="game-screen">
         <div className={`feedback-indicator ${feedback || ''}`}>
@@ -146,8 +149,7 @@ export default function ReceptionGame({ onBack }) {
           )}
         </div>
       </div>
-
-      <button className="btn-primary" onClick={() => playMorseSequence(morseAlphabet[targetLetter])} disabled={isProcessing || !targetLetter}>
+      <button className="btn-primary" onClick={() => playMorseSequence(morseAlphabet[targetLetter], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled })} disabled={isProcessing || !targetLetter}>
         <i className="bi-play-fill"></i> Repetir
       </button>
 
@@ -171,6 +173,14 @@ export default function ReceptionGame({ onBack }) {
           )
         })}
       </div>
+
+      {supportsVibrate && isMobile && (
+        <div className="practice-settings">
+          <button className={`btn-sm btn-secondary ${vibrateEnabled ? 'active' : ''}`} onClick={() => setVibrateEnabled(prev => !prev)}>
+            {vibrateEnabled ? 'Vibración On' : 'Vibración Off'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

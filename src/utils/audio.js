@@ -10,7 +10,7 @@ export const initAudio = () => {
   return audioCtx;
 };
 
-const supportsVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+export const supportsVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
 
 export const getMorseDuration = (code, wpm = 15) => {
   const dotDuration = 1.2 / wpm;
@@ -50,10 +50,37 @@ export const vibrateMorse = (code) => {
  * Plays a morse sequence with standardized WPM timing and a smoothed audio envelope.
  * @param {string} code - The morse string (e.g. ".-")
  * @param {function} onEnded - Callback when the audio finishes
- * @param {number} wpm - Words Per Minute (speed)
- * @param {number} frequency - Pitch of the tone in Hz
+ * @param {object|number} options - Playback options or WPM when using legacy signature
+ * @param {boolean} options.silent - Use vibration only instead of audio
+ * @param {boolean} options.vibrate - Vibrate in addition to audio
+ * @param {number} options.wpm - Words Per Minute (speed)
+ * @param {number} options.frequency - Pitch of the tone in Hz
  */
-export const playMorseSequence = (code, onEnded, wpm = 15, frequency = 600) => {
+export const playMorseSequence = (code, onEnded, options = {}) => {
+  let silent = false;
+  let vibrate = false;
+  let wpm = 15;
+  let frequency = 600;
+
+  if (typeof options === 'number') {
+    wpm = options;
+  } else if (typeof options === 'object' && options !== null) {
+    silent = options.silent || false;
+    vibrate = options.vibrate || false;
+    wpm = options.wpm ?? 15;
+    frequency = options.frequency ?? 600;
+  }
+
+  if (silent) {
+    if (vibrate) {
+      vibrateMorse(code);
+    }
+    if (onEnded) {
+      setTimeout(onEnded, getMorseDuration(code, wpm));
+    }
+    return;
+  }
+
   const ctx = initAudio();
   const dotDuration = 1.2 / wpm;
   const dashDuration = dotDuration * 3;
@@ -87,7 +114,9 @@ export const playMorseSequence = (code, onEnded, wpm = 15, frequency = 600) => {
     time += duration + elementSpace;
   }
 
-  vibrateMorse(code);
+  if (vibrate) {
+    vibrateMorse(code);
+  }
 
   if (onEnded) {
     const totalDurationMs = (time - ctx.currentTime) * 1000;
