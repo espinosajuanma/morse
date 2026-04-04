@@ -10,61 +10,114 @@ export const initAudio = () => {
   return audioCtx;
 };
 
+export const supportsVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+
+export const getMorseDuration = (code, wpm = 15) => {
+  const dotDuration = 1.2 / wpm;
+  const dashDuration = dotDuration * 3;
+  const elementSpace = dotDuration;
+  let total = 0;
+
+  for (let char of code.split('')) {
+    total += (char === '.' ? dotDuration : dashDuration) + elementSpace;
+  }
+
+  return Math.round(total * 1000);
+};
+
+export const vibrateMorse = (code) => {
+  if (!supportsVibrate) {
+    return 0;
+  }
+
+  const dotMs = 50;
+  const dashMs = 150;
+  const gapMs = 50;
+  const pattern = [];
+
+  code.split('').forEach((char, index) => {
+    pattern.push(char === '.' ? dotMs : dashMs);
+    if (index !== code.length - 1) {
+      pattern.push(gapMs);
+    }
+  });
+
+  navigator.vibrate(pattern);
+  return pattern.reduce((sum, value) => sum + value, 0);
+};
+
 /**
  * Plays a morse sequence with standardized WPM timing and a smoothed audio envelope.
  * @param {string} code - The morse string (e.g. ".-")
  * @param {function} onEnded - Callback when the audio finishes
- * @param {number} wpm - Words Per Minute (speed)
- * @param {number} frequency - Pitch of the tone in Hz
+ * @param {object|number} options - Playback options or WPM when using legacy signature
+ * @param {boolean} options.silent - Use vibration only instead of audio
+ * @param {boolean} options.vibrate - Vibrate in addition to audio
+ * @param {number} options.wpm - Words Per Minute (speed)
+ * @param {number} options.frequency - Pitch of the tone in Hz
  */
-export const playMorseSequence = (code, onEnded, wpm = 15, frequency = 600) => {
-  const ctx = initAudio();
-  
-  // Standard Morse timing math based on WPM
-  const dotDuration = 1.2 / wpm; 
-  const dashDuration = dotDuration * 3;
-  const elementSpace = dotDuration; // Space between dots/dashes in the same letter
-  
-  // Start slightly in the future to prevent audio glitches on the first note
-  let time = ctx.currentTime + 0.05; 
+export const playMorseSequence = (code, onEnded, options = {}) => {
+  let silent = false;
+  let vibrate = false;
+  let wpm = 15;
+  let frequency = 600;
 
-  code.split('').forEach((char) => {
+  if (typeof options === 'number') {
+    wpm = options;
+  } else if (typeof options === 'object' && options !== null) {
+    silent = options.silent || false;
+    vibrate = options.vibrate || false;
+    wpm = options.wpm ?? 15;
+    frequency = options.frequency ?? 600;
+  }
+
+  if (silent) {
+    if (vibrate) {
+      vibrateMorse(code);
+    }
+    if (onEnded) {
+      setTimeout(onEnded, getMorseDuration(code, wpm));
+    }
+    return;
+  }
+
+  const ctx = initAudio();
+  const dotDuration = 1.2 / wpm;
+  const dashDuration = dotDuration * 3;
+  const elementSpace = dotDuration;
+  let time = ctx.currentTime + 0.05;
+
+  for (let char of code.split('')) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
-    // Add a lowpass filter for a "warmer", less harsh radio sound
     const filter = ctx.createBiquadFilter();
+
     filter.type = 'lowpass';
-    filter.frequency.value = frequency * 2; // Cut off harsh high harmonics
+    filter.frequency.value = frequency * 2;
 
     osc.connect(filter);
     filter.connect(gain);
     gain.connect(ctx.destination);
-    
+
     osc.type = 'sine';
     osc.frequency.value = frequency;
 
     const duration = char === '.' ? dotDuration : dashDuration;
 
-    // --- Smoothed Envelope (Attack/Release) ---
-    // Start at volume 0
     gain.gain.setValueAtTime(0, time);
-    
-    // Attack: Rise to volume 1 quickly but smoothly (time constant: 0.005)
-    gain.gain.setTargetAtTime(1, time, 0.005); 
-    
-    // Release: Fade back to 0 just before the note ends
+    gain.gain.setTargetAtTime(1, time, 0.005);
     gain.gain.setTargetAtTime(0, time + duration - 0.01, 0.005);
 
     osc.start(time);
-    // Stop the oscillator slightly after the release fade finishes to prevent abrupt cuts
-    osc.stop(time + duration + 0.05); 
+    osc.stop(time + duration + 0.05);
 
-    // Advance the time marker for the next dot/dash
     time += duration + elementSpace;
-  });
+  }
 
-  // Calculate total sequence duration and fire the callback
+  if (vibrate) {
+    vibrateMorse(code);
+  }
+
   if (onEnded) {
     const totalDurationMs = (time - ctx.currentTime) * 1000;
     setTimeout(onEnded, totalDurationMs);
