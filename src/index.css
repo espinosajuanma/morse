@@ -396,23 +396,14 @@ a:hover {
     margin-top: 15px;
 }
 
-/* RESPONSIVE TWEAKS */
 @media (max-width: 600px) {
     main { width: 95%; padding: 0.5rem; }
+
     .app-header {
-        flex-wrap: wrap;
         padding: 0.5rem;
     }
-    .header-nav {
-        order: 3;
-        width: 100%;
-        justify-content: flex-start;
-        gap: 1rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-    .version {
-        order: 2;
+    #logo {
+        font-size: 3rem;
     }
     .key-btn { min-width: 45px; padding: 8px 10px; }
     .key-letter { font-size: 1.2rem; }
