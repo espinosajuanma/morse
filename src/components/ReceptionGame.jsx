@@ -20,6 +20,7 @@ export default function ReceptionGame({ onBack }) {
   const [targetLetter, setTargetLetter] = useState(null);
   const [feedback, setFeedback] = useState(null); // 'correct', 'incorrect', or null
   const [isProcessing, setIsProcessing] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [vibrateEnabled, setVibrateEnabled] = useState(true);
   const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
 
@@ -52,6 +53,10 @@ export default function ReceptionGame({ onBack }) {
     if (pendingLetters.length === 0) {
       if (currentLevelIndex + 1 < LEVELS.length) {
         navigate(`/reception/${currentLevelIndex + 2}`);
+        setHasStarted(false);
+        setIsProcessing(false);
+        setTargetLetter(null);
+        setFeedback(null);
       } else {
         alert("¡Felicidades! Has completado todos los niveles.");
         onBack();
@@ -71,16 +76,20 @@ export default function ReceptionGame({ onBack }) {
     }, 500);
   }, [availableLetters, currentLevelIndex, onBack, navigate, vibrateEnabled, isMobile]);
 
-  // Start the first turn when points are initialized
   useEffect(() => {
-    if (!targetLetter && Object.keys(points).length > 0 && !feedback) {
-      initAudio(); // Requires user interaction prior to this component rendering
+    if (hasStarted && !targetLetter && Object.keys(points).length > 0 && !feedback) {
       pickNextLetter(points);
     }
-  }, [points, targetLetter, feedback, pickNextLetter]);
+  }, [hasStarted, points, targetLetter, feedback, pickNextLetter]);
+
+  const startLevel = useCallback(() => {
+    if (hasStarted) return;
+    initAudio();
+    setHasStarted(true);
+  }, [hasStarted]);
 
   const handleInput = useCallback((inputLetter) => {
-    if (isProcessing || !targetLetter || feedback) return;
+    if (!hasStarted || isProcessing || !targetLetter || feedback) return;
 
     const upperInput = inputLetter.toUpperCase();
     if (!availableLetters.includes(upperInput)) return;
@@ -112,10 +121,19 @@ export default function ReceptionGame({ onBack }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (/^[a-zA-Z]$/.test(e.key)) {
-        handleInput(e.key);
+        if (hasStarted) {
+          handleInput(e.key);
+        } else {
+          const upperKey = e.key.toUpperCase();
+          if (availableLetters.includes(upperKey)) {
+            playMorseSequence(morseAlphabet[upperKey], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled });
+          }
+        }
       }
       if (e.key === ' ') {
-        playMorseSequence(morseAlphabet[targetLetter], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled });
+        if (hasStarted && targetLetter) {
+          playMorseSequence(morseAlphabet[targetLetter], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled });
+        }
       }
       if (e.key === 'Escape') {
         onBack();
@@ -123,17 +141,22 @@ export default function ReceptionGame({ onBack }) {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleInput, isMobile, vibrateEnabled]);
+  }, [handleInput, hasStarted, isMobile, targetLetter, vibrateEnabled, availableLetters, onBack]);
 
   return (
     <div className="game-container">
       <div className="game-header">
-        <h2>Nivel {currentLevelIndex + 1}</h2>
+        <div>
+          <h3>Entrenamiento de recepción</h3>
+        </div>
         <button className="btn-secondary" onClick={onBack}>Volver</button>
       </div>
+      <p>Escucha el sonido y presiona la letra correcta. ¡Consigue 5 puntos en cada letra para avanzar al siguiente nivel!</p>
 
 
       <div className="game-screen">
+        <h2 className="game-screen-title">Nivel {currentLevelIndex + 1}</h2>
+
         <div className={`feedback-indicator ${feedback || ''}`}>
           {feedback === 'correct' && <i className="bi-check-circle-fill"></i>}
           {feedback === 'incorrect' && <i className="bi-x-circle-fill"></i>}
@@ -142,15 +165,27 @@ export default function ReceptionGame({ onBack }) {
         
         {/* Hint: Show explicitly if points are 0 */}
         <div className="hint-display">
-          {targetLetter && points[targetLetter] === 0 ? (
-             <span className="hint-text">Escucha: {targetLetter} ({morseAlphabet[targetLetter]})</span>
+          {!hasStarted ? (
+            <span className="hint-text">Haz clic en Empezar para iniciar el nivel.</span>
+          ) : targetLetter && points[targetLetter] === 0 ? (
+            <span className="hint-text">Escucha: {targetLetter} ({morseAlphabet[targetLetter]})</span>
           ) : (
-             <span className="hint-text">¿Qué letra es?</span>
+            <span className="hint-text">¿Qué letra es?</span>
           )}
         </div>
       </div>
-      <button className="btn-primary" onClick={() => playMorseSequence(morseAlphabet[targetLetter], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled })} disabled={isProcessing || !targetLetter}>
-        <i className="bi-play-fill"></i> Repetir
+      <button
+        className="btn-primary"
+        onClick={() => {
+          if (!hasStarted) {
+            startLevel();
+            return;
+          }
+          playMorseSequence(morseAlphabet[targetLetter], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled });
+        }}
+        disabled={hasStarted ? isProcessing || !targetLetter : false}
+      >
+        <i className="bi-play-fill"></i> {hasStarted ? 'Repetir' : 'Empezar'}
       </button>
 
       <div className="virtual-keyboard">
@@ -160,15 +195,31 @@ export default function ReceptionGame({ onBack }) {
             <button 
               key={letter} 
               className="key-btn"
-              onClick={() => handleInput(letter)}
+              onClick={() => {
+                if (!hasStarted) {
+                  console.log('Playing letter:', letter);
+                  playMorseSequence(morseAlphabet[letter], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled });
+                } else {
+                  console.log('Handling input for letter:', letter);
+                  handleInput(letter);
+                }
+              }}
               disabled={isProcessing}
             >
               <span className="key-letter">{letter}</span>
-              <div className="progress-dots">
-                {[...Array(TARGET_POINTS)].map((_, i) => (
-                  <div key={i} className={`dot ${i < progress ? 'filled' : ''}`}></div>
-                ))}
-              </div>
+              {!hasStarted ? (
+                <div className="key-morse">
+                  {morseAlphabet[letter].split('').map((symbol, i) => (
+                    <div key={i} className={`morse-symbol ${symbol === '.' ? 'dot' : 'dash'}`}></div>
+                  ))}
+                </div>
+              ) : (
+                <div className="progress-dots">
+                  {[...Array(TARGET_POINTS)].map((_, i) => (
+                    <div key={i} className={`dot ${i < progress ? 'filled' : ''}`}></div>
+                  ))}
+                </div>
+              )}
             </button>
           )
         })}

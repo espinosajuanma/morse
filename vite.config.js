@@ -1,3 +1,4 @@
+/* eslint-env node */
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -8,6 +9,7 @@ function createSitemap(baseUrl) {
   const urls = [
     { path: '/', priority: '1.00' },
     { path: '/practice', priority: '0.80' },
+    { path: '/about', priority: '0.50' },
     ...LEVELS.map((_, index) => ({ path: `/reception/${index + 1}`, priority: '0.80' }))
   ]
 
@@ -23,6 +25,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const appUrl = env.VITE_APP_URL || 'https://morse.com.ar'
   const sitemapXml = createSitemap(appUrl)
+
+  // Set version from package.json
+  process.env.VITE_APP_VERSION = process.env.npm_package_version
 
   return {
     plugins: [
