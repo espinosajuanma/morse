@@ -119,10 +119,6 @@ a:hover {
     flex-wrap: wrap;
 }
 
-.about-btn {
-    margin-left: auto;
-}
-
 .btn-primary, .btn-secondary {
     user-select: none;
     font-family: var(--font-family);
@@ -311,17 +307,40 @@ a:hover {
 
 /* APP HEADER */
 .app-header {
-    position: fixed;
-    top: 0;
-    right: 0;
-    padding: 10px;
-    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 2px solid var(--dark);
+    margin-bottom: 1rem;
+}
+
+.header-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+    margin-left: auto;
+}
+
+.header-nav a {
+    font-family: var(--font-family);
+    font-weight: bold;
+    font-size: 1rem;
+    color: var(--red);
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+}
+
+.header-nav a:hover {
+    text-decoration: underline;
 }
 
 .version {
     font-size: 14px;
     color: var(--dark);
     font-family: var(--font-family);
+    flex-shrink: 0;
 }
 
 /* ABOUT PAGE */
@@ -380,7 +399,21 @@ a:hover {
 /* RESPONSIVE TWEAKS */
 @media (max-width: 600px) {
     main { width: 95%; padding: 0.5rem; }
-    #logo { font-size: 3rem; }
+    .app-header {
+        flex-wrap: wrap;
+        padding: 0.5rem;
+    }
+    .header-nav {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .version {
+        order: 2;
+    }
     .key-btn { min-width: 45px; padding: 8px 10px; }
     .key-letter { font-size: 1.2rem; }
 }

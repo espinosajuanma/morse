@@ -39,9 +39,6 @@ function Menu() {
         <button className="btn-secondary main-action" onClick={startPractice}>
           Práctica
         </button>
-        <button className="btn-secondary main-action about-btn" onClick={() => navigate('/about')}>
-          Acerca de
-        </button>
       </div>
 
       <hr />
@@ -64,7 +61,11 @@ function App() {
   return (
     <>
       <header className="app-header">
-        <div className="version">v{import.meta.env.VITE_APP_VERSION}</div>
+        <h1 id="logo" onClick={() => navigate('/')}>Morse</h1>
+        <nav className="header-nav">
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>Acerca de</a>
+          <div className="version">v{import.meta.env.VITE_APP_VERSION}</div>
+        </nav>
       </header>
       <Routes>
         <Route path="/" element={<Menu />} />
