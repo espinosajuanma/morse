@@ -7,7 +7,7 @@ const MorseButton = ({ type, onClick }) => {
 
         initAudio();
 
-        playMorseSequence(code, undefined, { vibrate: true });
+        playMorseSequence(code);
         onClick();
     };
 
