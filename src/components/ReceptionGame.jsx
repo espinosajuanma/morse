@@ -112,6 +112,12 @@ export default function ReceptionGame({ onBack }) {
       if (/^[a-zA-Z]$/.test(e.key)) {
         handleInput(e.key);
       }
+      if (e.key === ' ') {
+        playMorseSequence(morseAlphabet[targetLetter]);
+      }
+      if (e.key === 'Escape') {
+        onBack();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -142,7 +148,7 @@ export default function ReceptionGame({ onBack }) {
       </div>
 
       <button className="btn-primary" onClick={() => playMorseSequence(morseAlphabet[targetLetter])} disabled={isProcessing || !targetLetter}>
-        <i className="bi-play-fill"></i> Repetir Sonido
+        <i className="bi-play-fill"></i> Repetir
       </button>
 
       <div className="virtual-keyboard">
