@@ -32,7 +32,7 @@ export default function Practice({ onBack }) {
   return (
     <div className="practice-container">
       <div className="game-header">
-        <h2>Práctica de Transmisión</h2>
+        <h3>Práctica de Transmisión</h3>
         <button className="btn-secondary" onClick={onBack}>Volver</button>
       </div>
       <p>Toca punto o raya para escribir. El sistema traducirá tu código a letras.</p>
@@ -49,6 +49,8 @@ export default function Practice({ onBack }) {
         {morseInput}
       </div>
 
+      <hr />
+      <h3>Alfabeto Internacional</h3>
       <MorseTable />
     </div>
   );
