@@ -208,6 +208,16 @@ a:hover {
 
 .game-header h2 { margin: 0; }
 
+.game-screen-title {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    margin: 0;
+    font-size: 1.2rem;
+    color: #666;
+    font-weight: 600;
+}
+
 .game-screen {
     background-color: var(--dark);
     border-radius: 12px;
@@ -218,6 +228,7 @@ a:hover {
     justify-content: center;
     min-height: 150px;
     border: 4px solid #1a1a1a;
+    position: relative;
 }
 
 .feedback-indicator {
@@ -275,6 +286,27 @@ a:hover {
     font-size: 1.5rem;
     font-weight: bold;
     font-family: var(--logo-font);
+}
+
+.key-morse {
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+}
+
+.morse-symbol {
+    background-color: #d6c7a7;
+    border-radius: 2px;
+}
+
+.morse-symbol.dot {
+    width: 4px;
+    height: 4px;
+}
+
+.morse-symbol.dash {
+    width: 10px;
+    height: 4px;
 }
 
 .progress-dots {

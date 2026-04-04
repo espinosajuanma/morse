@@ -54,6 +54,9 @@ export default function ReceptionGame({ onBack }) {
       if (currentLevelIndex + 1 < LEVELS.length) {
         navigate(`/reception/${currentLevelIndex + 2}`);
         setHasStarted(false);
+        setIsProcessing(false);
+        setTargetLetter(null);
+        setFeedback(null);
       } else {
         alert("¡Felicidades! Has completado todos los niveles.");
         onBack();
@@ -143,12 +146,13 @@ export default function ReceptionGame({ onBack }) {
   return (
     <div className="game-container">
       <div className="game-header">
-        <h2>Nivel {currentLevelIndex + 1}</h2>
         <button className="btn-secondary" onClick={onBack}>Volver</button>
       </div>
 
 
       <div className="game-screen">
+        <h2 className="game-screen-title">Nivel {currentLevelIndex + 1}</h2>
+
         <div className={`feedback-indicator ${feedback || ''}`}>
           {feedback === 'correct' && <i className="bi-check-circle-fill"></i>}
           {feedback === 'incorrect' && <i className="bi-x-circle-fill"></i>}
@@ -189,8 +193,10 @@ export default function ReceptionGame({ onBack }) {
               className="key-btn"
               onClick={() => {
                 if (!hasStarted) {
+                  console.log('Playing letter:', letter);
                   playMorseSequence(morseAlphabet[letter], undefined, { vibrate: supportsVibrate && isMobile && vibrateEnabled });
                 } else {
+                  console.log('Handling input for letter:', letter);
                   handleInput(letter);
                 }
               }}
@@ -198,7 +204,11 @@ export default function ReceptionGame({ onBack }) {
             >
               <span className="key-letter">{letter}</span>
               {!hasStarted ? (
-                <span className="key-subtitle">{morseAlphabet[letter]}</span>
+                <div className="key-morse">
+                  {morseAlphabet[letter].split('').map((symbol, i) => (
+                    <div key={i} className={`morse-symbol ${symbol === '.' ? 'dot' : 'dash'}`}></div>
+                  ))}
+                </div>
               ) : (
                 <div className="progress-dots">
                   {[...Array(TARGET_POINTS)].map((_, i) => (
