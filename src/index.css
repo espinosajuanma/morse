@@ -46,6 +46,12 @@ h1,h2,h3,h4,h5 {
     font-family: var(--morse);
 }
 
+.brand {
+    font-family: var(--logo-font);
+    color: var(--red);
+    text-transform: uppercase;
+}
+
 #minigame {
     display: flex;
 }
@@ -111,6 +117,10 @@ a:hover {
     gap: 15px;
     margin-bottom: 20px;
     flex-wrap: wrap;
+}
+
+.about-btn {
+    margin-left: auto;
 }
 
 .btn-primary, .btn-secondary {
@@ -297,6 +307,39 @@ a:hover {
 .morse-symbol {
     background-color: #d6c7a7;
     border-radius: 2px;
+}
+
+/* APP HEADER */
+.app-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    z-index: 1000;
+}
+
+.version {
+    font-size: 14px;
+    color: var(--dark);
+    font-family: var(--font-family);
+}
+
+/* ABOUT PAGE */
+.about-content {
+    text-align: center;
+}
+
+.about-content p {
+    margin: 10px 0;
+}
+
+.about-content a {
+    color: var(--red);
+    text-decoration: none;
+}
+
+.about-content a:hover {
+    text-decoration: underline;
 }
 
 .morse-symbol.dot {

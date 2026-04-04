@@ -146,8 +146,12 @@ export default function ReceptionGame({ onBack }) {
   return (
     <div className="game-container">
       <div className="game-header">
+        <div>
+          <h3>Entrenamiento de recepción</h3>
+        </div>
         <button className="btn-secondary" onClick={onBack}>Volver</button>
       </div>
+      <p>Escucha el sonido y presiona la letra correcta. ¡Consigue 5 puntos en cada letra para avanzar al siguiente nivel!</p>
 
 
       <div className="game-screen">
