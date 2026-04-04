@@ -28,7 +28,7 @@ export const playMorseSequence = (code, onEnded, wpm = 15, frequency = 600) => {
   // Start slightly in the future to prevent audio glitches on the first note
   let time = ctx.currentTime + 0.05; 
 
-  code.split('').forEach((char) => {
+  for (let char of code.split('')) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     
@@ -62,7 +62,7 @@ export const playMorseSequence = (code, onEnded, wpm = 15, frequency = 600) => {
 
     // Advance the time marker for the next dot/dash
     time += duration + elementSpace;
-  });
+  }
 
   // Calculate total sequence duration and fire the callback
   if (onEnded) {

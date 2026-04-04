@@ -1,16 +1,31 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { LEVELS } from '../utils/levels';
 import { playMorseSequence, initAudio } from '../utils/audio';
 import morseAlphabet from '../utils/morseAlphabet';
 
 const TARGET_POINTS = 5;
 
-export default function Game({ initialLevel, onBack }) {
-  const [currentLevelIndex, setCurrentLevelIndex] = useState(initialLevel);
+export default function ReceptionGame({ onBack }) {
+  const { level } = useParams();
+  const navigate = useNavigate();
+  const parsedLevel = Number(level);
+
+  const currentLevelIndex = useMemo(() => {
+    const index = Number.isInteger(parsedLevel) ? parsedLevel - 1 : -1;
+    return Math.max(0, Math.min(LEVELS.length - 1, index));
+  }, [parsedLevel]);
+
   const [points, setPoints] = useState({});
   const [targetLetter, setTargetLetter] = useState(null);
   const [feedback, setFeedback] = useState(null); // 'correct', 'incorrect', or null
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (!level || !Number.isInteger(parsedLevel) || parsedLevel < 1 || parsedLevel > LEVELS.length) {
+      navigate('/', { replace: true });
+    }
+  }, [level, parsedLevel, navigate]);
 
   // Cumulative letters up to the current level
   const availableLetters = useMemo(() => {
@@ -34,7 +49,7 @@ export default function Game({ initialLevel, onBack }) {
     
     if (pendingLetters.length === 0) {
       if (currentLevelIndex + 1 < LEVELS.length) {
-        setCurrentLevelIndex(prev => prev + 1);
+        navigate(`/reception/${currentLevelIndex + 2}`);
       } else {
         alert("¡Felicidades! Has completado todos los niveles.");
         onBack();
@@ -52,7 +67,7 @@ export default function Game({ initialLevel, onBack }) {
         setIsProcessing(false);
       });
     }, 500);
-  }, [availableLetters, currentLevelIndex, onBack]);
+  }, [availableLetters, currentLevelIndex, onBack, navigate]);
 
   // Start the first turn when points are initialized
   useEffect(() => {
@@ -126,7 +141,7 @@ export default function Game({ initialLevel, onBack }) {
         </div>
       </div>
 
-      <button className="btn-primary" onClick={() => playMorseSequence(morseAlphabet[targetLetter])} disabled={isProcessing}>
+      <button className="btn-primary" onClick={() => playMorseSequence(morseAlphabet[targetLetter])} disabled={isProcessing || !targetLetter}>
         <i className="bi-play-fill"></i> Repetir Sonido
       </button>
 
